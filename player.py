@@ -2,7 +2,7 @@ import random
 
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, spendingAI):
         self.id = name
         self.money = 0    # Current amount of money
         self.position = 0   # Current position
@@ -10,7 +10,7 @@ class Player:
         self.property = []  # Property owned
         self.cards = []     # Cards owned
         self.bankrupt = false   # Bankruptcy status
-        self.spendingAI = 0.5    # This can determine how they spend their money [0 - 1]
+        self.spendingAI = spendingAI    # This can determine how they spend their money [0.0 to 1.0]
         self.ai = "something will go here"
 
     def move(self, position):
