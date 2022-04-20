@@ -52,9 +52,9 @@ class Player:
         if self.money >= 50:
             if self.spendingAI < 0.3:   # Between 0.0 and 0.2 inclusive
                 spend_rng = random.randint(0, 60)   # Not likely to pay bail
-            elif self.spendingAI > 0.2 & self.spendingAI < 0.6:     # Between 0.3 and 0.5 inclusive
+            elif self.spendingAI > 0.2 and self.spendingAI < 0.6:     # Between 0.3 and 0.5 inclusive
                 spend_rng = random.randint(10, 70)
-            elif self.spendingAI > 0.5 & self.spendingAI < 0.9:     # Between 0.6 and 0.8 inclusive
+            elif self.spendingAI > 0.5 and self.spendingAI < 0.9:     # Between 0.6 and 0.8 inclusive
                 spend_rng = random.randint(30, 80)
             else:   # Between 0.9 and 1.0 inclusive
                 spend_rng = random.randint(45, 100)     # Nearly guaranteed to pay bail
