@@ -7,11 +7,11 @@ class Player:
         self.id = name     # Identifier
         self.money = 0    # Current amount of money
         self.position = 0   # Current position
-        self.jail = false   # Jailed status
+        self.jail = False   # Jailed status
         self.property = []  # Property owned
         self.cards = []     # Cards the player currently has
         self.railroads = 0     # Railroads owned
-        self.bankrupt = false   # Bankruptcy status
+        self.bankrupt = False   # Bankruptcy status
         self.spendingAI = spendingAI    # This can determine how they spend their money [ranging from 0.0 to 1.0]
         self.ai = "something will go here"
 
