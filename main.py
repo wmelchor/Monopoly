@@ -29,7 +29,7 @@ def winner_data(players):
 
 
 def main():
-    while not game_over(players):
+    while not game_over(players): # Infinite loop as of now
         P1.move(P1.position)
         P1.position_action(board)
         P2.move(P2.position)
