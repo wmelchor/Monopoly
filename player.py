@@ -25,7 +25,7 @@ class Player:
         else:
             roll = a + b
             self.position += roll
-            print(self.id + "rolled " + roll + " moving from " + previous + " to " + self.position + "\n")
+            print(self.id, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
             return roll
 
     def spend_money(self, amount):
@@ -67,7 +67,7 @@ class Player:
                     b = random.randint(1, 6)
                     roll = a + b
                     self.position += roll
-                    print(self.id + "rolled " + roll + " moving from " + previous + " to " + self.position + "\n")
+                    print(self.id, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
             else:
                 a = random.randint(1, 6)
                 b = random.randint(1, 6)
@@ -75,7 +75,7 @@ class Player:
                     print("Rolled doubles! Get out of jail!")
                     roll = a + b
                     self.position += roll
-                    print(self.id + "rolled " + roll + " moving from " + previous + " to " + self.position + "\n")
+                    print(self.id, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
                 else:
                     print("Failed to roll doubles, too bad!")
         else:
