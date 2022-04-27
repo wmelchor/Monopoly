@@ -1,10 +1,11 @@
 import random
 import board as board
+import playstyle as playstyle
 
 
 class Player:
     def __init__(self, name, spendingAI):
-        self.id = name     # Identifier
+        self.name = name     # Identifier
         self.money = 0    # Current amount of money
         self.position = 0   # Current position
         self.jail = False   # Jailed status
@@ -13,6 +14,7 @@ class Player:
         self.railroads = 0     # Railroads owned
         self.bankrupt = False   # Bankruptcy status
         self.spendingAI = spendingAI    # This can determine how they spend their money [ranging from 0.0 to 1.0]
+        self.playstyle = playstyle.Playstyle(spendingAI)
         self.ai = "something will go here"
 
     def move(self, position):
@@ -26,7 +28,7 @@ class Player:
             roll = a + b
             self.position += roll
             self.position = self.position % 40
-            print(self.id, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
+            print(self.name, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
             return roll
 
     def spend_money(self, amount):
@@ -69,7 +71,7 @@ class Player:
                     b = random.randint(1, 6)
                     roll = a + b
                     self.position += roll
-                    print(self.id, "rolled ", roll, " to ", self.position, "\n")
+                    print(self.name, "rolled ", roll, " to ", self.position, "\n")
             else:
                 a = random.randint(1, 6)
                 b = random.randint(1, 6)
@@ -78,7 +80,7 @@ class Player:
                     self.jail = False
                     roll = a + b
                     self.position += roll
-                    print(self.id, "rolled ", roll, " to ", self.position, "\n")
+                    print(self.name, "rolled ", roll, " to ", self.position, "\n")
                 else:
                     print("Failed to roll doubles, too bad!")
         else:
@@ -89,7 +91,7 @@ class Player:
                 self.jail = False
                 roll = a + b
                 self.position += roll
-                print(self.id, "rolled ", roll, " to ", self.position, "\n")
+                print(self.name, "rolled ", roll, " to ", self.position, "\n")
             else:
                 print("Failed to roll doubles, too bad!")
         return
@@ -107,6 +109,7 @@ class Player:
             print("Taxed $75!")
         # Include options to buy property and actions to take if landing on owned property
         # Not complete
+
         return
 
     def bankrupt_action(self):
@@ -129,3 +132,23 @@ class Player:
             amount_owed = property.rent_prices[i]
         self.spend_money(amount_owed)
         property.cur_owner.add_money(amount_owed)
+
+
+    def defaultDecision(self, board):
+        # Uses spendingAI and current board info to decide on a purchase
+        # spendingAI < 0.5 passive
+        # spendingAI > 0.5 aggressive
+        # spendingAI = 0.5 neutral
+        cardsofcolor = []
+        ownedByMe = 0
+        ownedByOther = 0 
+        
+        for x in board:
+            if (x.type == board[self.position].type):
+                cardsofcolor.append(x)
+                if (x.cur_owner == self.name):
+                    ownedByMe +=1
+                elif(x.cur_owner != "Bank"):
+                    ownedByOther += 1
+        return random.random() > ((self.spendingAI - 0.5) / 10) + (ownedByMe/(len(cardsofcolor) - ownedByOther))
+            

@@ -15,6 +15,7 @@ class Board:
 # position, color, position_price, house_price, total_houses, rent_prices, mortgage, cur_owner, isMortgaged
 
 
+from xml.sax import xmlreader
 import board as info
 
 
@@ -192,3 +193,5 @@ def cards_and_positions():
         go_to_jail, pacific_ave, nc_ave, comm_chest, pa_ave, short_line_rr, chance, park_place,
         luxury_tax, boardwalk]
         return board
+
+
