@@ -1,4 +1,5 @@
 import random
+from time import sleep
 import board as board
 import playstyle as playstyle
 
@@ -6,7 +7,7 @@ import playstyle as playstyle
 class Player:
     def __init__(self, name, spendingAI):
         self.name = name     # Identifier
-        self.money = 0    # Current amount of money
+        self.money = 50   # Current amount of money
         self.position = 0   # Current position
         self.jail = False   # Jailed status
         self.property = []  # Property owned
@@ -17,7 +18,7 @@ class Player:
         self.playstyle = playstyle.Playstyle(spendingAI)
         self.ai = "something will go here"
 
-    def move(self, position):
+    def move(self, position, board):
         previous = position
         a = random.randint(1, 6)
         b = random.randint(1, 6)
@@ -28,7 +29,7 @@ class Player:
             roll = a + b
             self.position += roll
             self.position = self.position % 40
-            print(self.name, "rolled ", roll, " moving from ", previous, " to ", self.position, "\n")
+            print(self.name, "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
             return roll
 
     def spend_money(self, amount):
@@ -98,7 +99,15 @@ class Player:
 
     def position_action(self, board):
         # Based on the position the player has landed on, take certain actions
+
         position = board[self.position]
+
+        
+        #test bankrupt
+
+        if (self.money < 10):
+            self.bankrupt_action()
+        #
         if position.name == "Go to Jail":
             self.go_to_jail()
         elif position.name == "Income Tax":
@@ -117,6 +126,8 @@ class Player:
         # Like selling property back to the bank/other players
         # Game over for the player, take them out of the game
         # Take back all cards owned by that player and give it to the bank
+        print(self.name + " went bankrupt!!!!!!!!!!!!!")
+        sleep(5)
         self.bankrupt = True
 
     def rent(self, property):
@@ -134,7 +145,7 @@ class Player:
         property.cur_owner.add_money(amount_owed)
 
 
-    def defaultDecision(self, board):
+    def __defaultDecision(self, board):
         # Uses spendingAI and current board info to decide on a purchase
         # spendingAI < 0.5 passive
         # spendingAI > 0.5 aggressive
