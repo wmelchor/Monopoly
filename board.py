@@ -15,6 +15,14 @@ class Board:
 # position, color, position_price, house_price, total_houses, rent_prices, mortgage, cur_owner, isMortgaged
 
 
+chance_cards = ["Advance to Boardwalk", "Advance to Go (Collect $200)", "Advance to Illinois Avenue",
+                "Advance to St. Charles Place", "Advance to the nearest Railroad",
+                "Advance to the nearest Railroad", "Advance token to nearest Utility",
+                "Bank pays you dividend of $50", "Get Out of Jail Free", "Go Back 3 Spaces",
+                "Go to Jail", "Make general repairs on all your property", "Speeding fine",
+                "Take a trip to Reading Railroad", "You have been elected Chairman of the Board",
+                "Your building loan matures. Collect $150"]
+
 from xml.sax import xmlreader
 import board as info
 
