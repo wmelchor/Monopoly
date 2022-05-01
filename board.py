@@ -23,6 +23,14 @@ chance_cards = ["Advance to Boardwalk", "Advance to Go (Collect $200)", "Advance
                 "Take a trip to Reading Railroad", "You have been elected Chairman of the Board",
                 "Your building loan matures. Collect $150"]
 
+community_cards = ["Advance to Go (Collect $200)", "Life Insurance Matures",
+                   "You have won second prize in a beauty contest", "Bank Error In Your Favor",
+                   "From Sale of Stock You Get $45", "Income Tax Refund",
+                   "Receive for Services $25", "Get Out of Jail Free", "You Inherit $100",
+                   "Go to Jail", "Xmas Fund Matures", "Grand Opera Opening",
+                   "Doctor's Fee", "Pay Hospital", "Pay School Tax of $150",
+                   "You are Assessed for Street Repairs"]
+
 from xml.sax import xmlreader
 import board as info
 
