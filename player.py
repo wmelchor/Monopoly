@@ -21,6 +21,9 @@ class Player:
         self.ai = "something will go here"
 
     def move(self, position, board):
+        if self.bankrupt:
+            return
+
         previous = position
         a = random.randint(1, 6)
         b = random.randint(1, 6)
@@ -135,7 +138,8 @@ class Player:
             if property.rent_prices[i] == NULL:
                 return
             amount_owed = property.rent_prices[i]
-        self.spend_money(50 * amount_owed)
+        if not self.spend_money(50 * amount_owed):
+            return
       
         for player in players:
             if player.name == property.cur_owner:
@@ -175,13 +179,15 @@ class Player:
 
     def position_action(self, board, players):
         # Based on the position the player has landed on, take certain actions
+        if self.bankrupt:
+            return
 
         position = self.position
 
         
         #test bankrupt
 
-        if (self.money <= 0):
+        if self.money <= 0:
             self.bankrupt_action()
 
         #    
@@ -201,6 +207,9 @@ class Player:
         elif board[position].name == "Chance":
             # incomplete
             print("Chance??")
+            i = 0
+            random.shuffle(globals()["board"].chance_cards)
+            self.chance_action(i, board, players)
         elif board[position].name == "Community Chest":
              # incomplete
             print("Community Chest")
@@ -216,3 +225,86 @@ class Player:
                 if self.defaultDecision(board):
                     self.buy_position(position, board)
         return
+
+    def chance_action(self, index, positions, players):     # index for card deck, board, players
+        if board.chance_cards[index] == "Advance to Boardwalk":
+            print("Drew chance card! Advance to Boardwalk")
+            self.position = 39
+        elif board.chance_cards[index] == "Advance to Go (Collect $200)":
+            print("Drew chance card! Advance to Go (Collect $200)")
+            self.position = 0
+            self.add_money(200)
+        elif board.chance_cards[index] == "Advance to Illinois Avenue":
+            print("Drew chance card! Advance to Illinois Avenue")
+            if self.position > 24:
+                self.add_money(200)
+            self.position = 24
+        elif board.chance_cards[index] == "Advance to St. Charles Place":
+            print("Drew chance card! Advance to St. Charles Place")
+            if self.position > 11:
+                self.add_money(200)
+            self.position = 11
+        elif board.chance_cards[index] == "Advance to the nearest Railroad":
+            print("Drew chance card! Advance to the nearest Railroad")
+            if self.position < 5:
+                self.position = 5
+            elif 15 > self.position > 5:
+                self.position = 15
+            elif 25 > self.position > 15:
+                self.position = 25
+            elif 35 > self.position > 25:
+                self.position = 35
+            else:
+                self.position = 5
+        elif board.chance_cards[index] == "Make general repairs on all your property":
+            print("Drew chance card! Make general repairs on all your property")
+            count = 0
+            for positions in positions:
+                if positions.cur_owner == self.name:
+                    count = count + positions.total_houses
+            total_pay = count * 25
+            self.spend_money(total_pay)
+        elif board.chance_cards[index] == "Advance token to nearest Utility":
+            print("Drew chance card! Advance token to nearest Utility")
+            if self.position < 12 or self.position > 28:
+                self.position = 12
+            else:
+                self.position = 28
+        elif board.chance_cards[index] == "Bank pays you dividend of $50":
+            print("Drew chance card! Bank pays you dividend of $50")
+            self.add_money(50)
+        elif board.chance_cards[index] == "Get Out of Jail Free":
+            print("Drew chance card! Get Out of Jail Free")
+            self.cards.append("Get Out of Jail Free")
+        elif board.chance_cards[index] == "Go Back 3 Spaces":
+            print("Drew chance card! Go Back 3 Spaces")
+            if self.position == 2:
+                self.position = 40
+            elif self.position == 1:
+                self.position = 39
+            elif self.position == 0:
+                self.position = 38
+            else:
+                self.position = self.position - 3
+        elif board.chance_cards[index] == "Go to Jail":
+            print("Drew chance card! Go to Jail")
+            self.go_to_jail()
+        elif board.chance_cards[index] == "Speeding fine":
+            print("Drew chance card! Speeding fine")
+            self.spend_money(15)
+        elif board.chance_cards[index] == "Take a trip to Reading Railroad":
+            print("Drew chance card! Take a trip to Reading Railroad")
+            if self.position > 5:
+                self.add_money(200)
+            self.position = 5
+        elif board.chance_cards[index] == "You have been elected Chairman of the Board":
+            print("Drew chance card! You have been elected Chairman of the Board. Pay each player $50")
+            total = 50 * 4
+            self.spend_money(total)
+            for player in players:
+                player.add_money(50)
+        elif board.chance_cards[index] == "Your building loan matures. Collect $150":
+            print("Drew chance card! Your building loan matures. Collect $150")
+            self.add_money(150)
+        else:
+            print("e")
