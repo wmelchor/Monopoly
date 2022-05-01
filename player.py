@@ -22,7 +22,7 @@ class Player:
         self.playstyle = playstyle.Playstyle(spendingAI)
         self.ai = "something will go here"
 
-    def move(self, position, board):
+    def move(self, position, board, globalvals):
         if self.bankrupt:
             return
 
@@ -31,7 +31,7 @@ class Player:
         b = random.randint(1, 6)
         # Maybe some conditionals based on doubles and such
         if self.jail:    # If player is in jail, attempt to get out
-            self.get_out_of_jail(board)
+            self.get_out_of_jail(board, globalvals)
         else:
             roll = a + b
             self.position += roll
@@ -39,34 +39,50 @@ class Player:
             #print(self.name, "(" ,self.money , ")", "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
             # if passed go collect 200
             if previous > self.position:
-                self.add_money(200)
+                self.add_money(200, globalvals)
                 #print("Passed Go Collect $200!")
             return roll
 
-    def spend_money(self, amount):
+    def spend_money(self, amount, globalvals):
         spent = False
-        if self.money < amount:
-            # Add options to allow the player to not get bankrupt
-            print("Not enough money!")
-            self.bankrupt_action()
+        if globalvals[3]:
+            if self.money < amount:
+                # Add options to allow the player to not get bankrupt
+            # print("Not enough money!")
+                self.bankrupt_action(globalvals)
+            else:
+                self.money = self.money - amount
+                spent = True
         else:
-            self.money = self.money - amount
-            spent = True
+
+            if self.money < amount:
+                # Add options to allow the player to not get bankrupt
+            # print("Not enough money!")
+                self.bankrupt_action(globalvals)
+            else:
+                globalvals[2] += amount
+                self.money = self.money - amount
+                spent = True
         return spent
 
-    def add_money(self, amount):
+    def add_money(self, amount, globalvals):
         # 20580
-        # if bank - amount == 0:
-        #    return 
-        self.money = self.money + amount
+        if globalvals[3]:
+             self.money = self.money + amount
+        else:
+            if globalvals[2] - amount <= 0:
+                return 
+            else:
+                self.money = self.money + amount
+                globalvals[2] -= amount
         return self.money
 
     def go_to_jail(self):
-        print("Go to jail!")
+       # print("Go to jail!")
         self.position = 10
         self.jail = True
 
-    def get_out_of_jail(self, board):
+    def get_out_of_jail(self, board, globalvals):
         # add get out of jail card implementation ##########################
         # If player AI is is passive/is try to accumulate money, more likely
         # to try to roll doubles. If more aggro, more likely to pay bail
@@ -83,7 +99,7 @@ class Player:
             else:   # Between 0.9 and 1.0 inclusive
                 spend_rng = random.randint(45, 100)     # Nearly guaranteed to pay bail
             if spend_rng >= 50:
-                if self.spend_money(50):    # If money successfully spent
+                if self.spend_money(50, globalvals):    # If money successfully spent
                     self.jail = False
                     a = random.randint(1, 6)
                     b = random.randint(1, 6)
@@ -116,21 +132,30 @@ class Player:
                 pass
         return
 
-    def bankrupt_action(self):
+    def bankrupt_action(self, globalvals):
         # Include last ditch effort to allow player to not get bankrupt,
         # Like selling property back to the bank/other players
         # Game over for the player, take them out of the game
         # Take back all cards owned by that player and give it to the bank
-        print(self.name + " went bankrupt!!!!!!!!!!!!!")
-        data = self.name + " went bankrupt"
+        #print(self.name + " went bankrupt!!!!!!!!!!!!!")
         self.bankrupt = True
-        return data
+        globalvals[2] += self.money
+        for card in self.property:
+            card.cur_owner = "Bank"
+            if card.total_houses == 5:
+                globalvals[0] += 4
+                globalvals[1] += 1
+            else:    
+                globalvals[0] += card.total_houses 
+            card.total_houses = 0
+        return 
 
-    def rent(self, property, board, players):
+    def rent(self, property, board, players, globalvals):
         # Do not call this function if the current owner is the bank
         # Determine how much money the player needs to pay when landing
         # on another person's property
         # Possibly add options if a player owns all of the color group?
+        globalvals[3] = True
         if property.type == "Utility":
             # make amount_owed a function of dice roll
             amount_owed = 100
@@ -145,15 +170,18 @@ class Player:
         else:
             i = property.total_houses
             if property.rent_prices[i] == NULL:
+                globalvals[3] = False
                 return
             amount_owed = property.rent_prices[i]
-        if not self.spend_money(amount_owed):
+        if not self.spend_money(amount_owed, globalvals):
+            globalvals[3] = False
             return
       
         for player in players:
             if player.name == property.cur_owner:
-                player.add_money(amount_owed)
-                print(self.name , " payed ", player.name, amount_owed)
+                player.add_money(amount_owed, globalvals)
+                globalvals[3] = False
+                #print(self.name , " payed ", player.name, amount_owed)
 
 
     def defaultDecision(self, board):
@@ -181,13 +209,13 @@ class Player:
                     ownedByBank +=1
 
         #(self.spendingAI - 0.5) / 10)) +
-        probability = ( ((self.spendingAI - 0.5) / 10)) + (ownedByMe - ownedByOther)/(len(cardsofcolor))
+        probability = ( ((self.spendingAI - 0.5) / 10)) + (ownedByBank/10 + ownedByMe - ownedByOther)/(len(cardsofcolor))
         #print(probability , "<--------- buy probability")
         return random.random() < probability
 
-    def buy_position(self, position, board):
+    def buy_position(self, position, board, globalvals):
         # Buy position and adjust player values
-        self.spend_money(board[position].price)
+        self.spend_money(board[position].price, globalvals)
         self.property.append(board[position])
         #for props in self.property:
                 #print(self.name, "property list: ", props.name, props.type)
@@ -203,7 +231,7 @@ class Player:
     
         for card in self.property:
             if card.type == color and card.total_houses < 5:
-                if self.spend_money(card.house_price):
+                if self.spend_money(card.house_price, globalvals):
                     if card.total_houses == 4 and globalvals[1] > 0:
                         globalvals[1] -= 1
                         globalvals[0] += 4
@@ -281,7 +309,7 @@ class Player:
         self.check_colors(globalvals)
 
         if self.money <= 0:
-            self.bankrupt_action()
+            self.bankrupt_action(globalvals)
 
         #    
         elif board[position].name == "Go":
@@ -294,58 +322,55 @@ class Player:
             self.go_to_jail()
         elif board[position].name == "Income Tax":
             # Add option to spend 10% of net worth if we want
-            self.spend_money(200)
+            self.spend_money(200, globalvals)
             #print("Taxed $200!")
         elif board[position].name == "Luxury Tax":
-            self.spend_money(75)
+            self.spend_money(75, globalvals)
             #print("Taxed $75!")
         elif board[position].name == "Chance":
             # incomplete
             #print("Chance??")
             i = 0
             random.shuffle(globals()["board"].chance_cards)
-            self.chance_action(i, board, players)
+            self.chance_action(i, board, players, globalvals)
             self.chance_times += 1
         elif board[position].name == "Community Chest":
             # incomplete
             #print("Community Chest")
             i = 0
             random.shuffle(globals()["board"].community_cards)
-            self.community_action(i, board, players)
+            self.community_action(i, board, players, globalvals)
             self.community_times += 1
         elif board[position].name == "Jail":
-            if self.jail:
-                print("Still in Jail")
-            else:
-                print("Visiting Jail")    
+            pass    
         else:
             if board[position].cur_owner != "Bank" and board[position].cur_owner != self.name:
-                self.rent(board[position], board, players)
+                self.rent(board[position], board, players, globalvals)
             elif board[position].cur_owner == "Bank":
                 if self.defaultDecision(board):
-                    self.buy_position(position, board)
+                    self.buy_position(position, board, globalvals)
         return
 
-    def chance_action(self, index, positions, players):     # index for card deck, board, players
+    def chance_action(self, index, positions, players, globalvals):     # index for card deck, board, players
         if board.chance_cards[index] == "Advance to Boardwalk":
-            print("Drew chance card! Advance to Boardwalk")
+            #print("Drew chance card! Advance to Boardwalk")
             self.position = 39
         elif board.chance_cards[index] == "Advance to Go (Collect $200)":
-            print("Drew chance card! Advance to Go (Collect $200)")
+            #print("Drew chance card! Advance to Go (Collect $200)")
             self.position = 0
-            self.add_money(200)
+            self.add_money(200, globalvals)
         elif board.chance_cards[index] == "Advance to Illinois Avenue":
-            print("Drew chance card! Advance to Illinois Avenue")
+            #print("Drew chance card! Advance to Illinois Avenue")
             if self.position > 24:
-                self.add_money(200)
+                self.add_money(200, globalvals)
             self.position = 24
         elif board.chance_cards[index] == "Advance to St. Charles Place":
-            print("Drew chance card! Advance to St. Charles Place")
+            #print("Drew chance card! Advance to St. Charles Place")
             if self.position > 11:
-                self.add_money(200)
+                self.add_money(200, globalvals)
             self.position = 11
         elif board.chance_cards[index] == "Advance to the nearest Railroad":
-            print("Drew chance card! Advance to the nearest Railroad")
+            #print("Drew chance card! Advance to the nearest Railroad")
             if self.position < 5:
                 self.position = 5
                 
@@ -359,33 +384,33 @@ class Player:
                 self.position = 5
            
             if positions[self.position].cur_owner != "Bank" and positions[self.position].cur_owner != self.name:
-                self.rent(positions[self.position], positions, players)
+                self.rent(positions[self.position], positions, players, globalvals)
             elif positions[self.position].cur_owner == "Bank":
                if self.defaultDecision(positions):
-                    self.buy_position(self.position, positions)    
+                    self.buy_position(self.position, positions, globalvals)    
 
         elif board.chance_cards[index] == "Make general repairs on all your property":
-            print("Drew chance card! Make general repairs on all your property")
+            #print("Drew chance card! Make general repairs on all your property")
             count = 0
             for positions in positions:
                 if positions.cur_owner == self.name:
                     count = count + positions.total_houses
             total_pay = count * 25
-            self.spend_money(total_pay)
+            self.spend_money(total_pay, globalvals)
         elif board.chance_cards[index] == "Advance token to nearest Utility":
-            print("Drew chance card! Advance token to nearest Utility")
+            #print("Drew chance card! Advance token to nearest Utility")
             if self.position < 12 or self.position > 28:
                 self.position = 12
             else:
                 self.position = 28
         elif board.chance_cards[index] == "Bank pays you dividend of $50":
-            print("Drew chance card! Bank pays you dividend of $50")
-            self.add_money(50)
+            #print("Drew chance card! Bank pays you dividend of $50")
+            self.add_money(50, globalvals)
         elif board.chance_cards[index] == "Get Out of Jail Free":
-            print("Drew chance card! Get Out of Jail Free")
+           # print("Drew chance card! Get Out of Jail Free")
             self.cards.append("Get Out of Jail Free")
         elif board.chance_cards[index] == "Go Back 3 Spaces":
-            print("Drew chance card! Go Back 3 Spaces")
+            #print("Drew chance card! Go Back 3 Spaces")
             if self.position == 2:
                 self.position = 40
             elif self.position == 1:
@@ -395,84 +420,84 @@ class Player:
             else:
                 self.position = self.position - 3
         elif board.chance_cards[index] == "Go to Jail":
-            print("Drew chance card! Go to Jail")
+            #print("Drew chance card! Go to Jail")
             self.go_to_jail()
         elif board.chance_cards[index] == "Speeding fine":
-            print("Drew chance card! Speeding fine")
-            self.spend_money(15)
+            #print("Drew chance card! Speeding fine")
+            self.spend_money(15, globalvals)
         elif board.chance_cards[index] == "Take a trip to Reading Railroad":
-            print("Drew chance card! Take a trip to Reading Railroad")
+           # print("Drew chance card! Take a trip to Reading Railroad")
             if self.position > 5:
-                self.add_money(200)
+                self.add_money(200, globalvals)
             self.position = 5
         elif board.chance_cards[index] == "You have been elected Chairman of the Board":
-            print("Drew chance card! You have been elected Chairman of the Board. Pay each player $50")
+           # print("Drew chance card! You have been elected Chairman of the Board. Pay each player $50")
             total = 50 * 4
-            self.spend_money(total)
+            self.spend_money(total, globalvals)
             for player in players:
-                player.add_money(50)
+                player.add_money(50, globalvals)
         elif board.chance_cards[index] == "Your building loan matures. Collect $150":
-            print("Drew chance card! Your building loan matures. Collect $150")
-            self.add_money(150)
+           # print("Drew chance card! Your building loan matures. Collect $150")
+            self.add_money(150, globalvals)
         else:
             print("e")
 
-    def community_action(self, index, positions, players):     # index for card deck, board, players
+    def community_action(self, index, positions, players, globalvals):     # index for card deck, board, players
         if board.community_cards[index] == "Life Insurance Matures":
-            print("Drew community card! Life Insurance Matures")
-            self.add_money(100)
+           # print("Drew community card! Life Insurance Matures")
+            self.add_money(100, globalvals)
         elif board.community_cards[index] == "Advance to Go (Collect $200)":
-            print("Drew community card! Advance to Go (Collect $200)")
+           # print("Drew community card! Advance to Go (Collect $200)")
             self.position = 0
-            self.add_money(200)
+            self.add_money(200, globalvals)
         elif board.community_cards[index] == "You have won second prize in a beauty contest":
-            print("Drew community card! You have won second prize in a beauty contest")
-            self.add_money(10)
+           # print("Drew community card! You have won second prize in a beauty contest")
+            self.add_money(10, globalvals)
         elif board.community_cards[index] == "Bank Error In Your Favor":
-            print("Drew community card! Bank Error In Your Favor")
-            self.add_money(200)
+           # print("Drew community card! Bank Error In Your Favor")
+            self.add_money(200, globalvals)
         elif board.community_cards[index] == "From Sale of Stock You Get $45":
-            print("Drew community card! From Sale of Stock You Get $45")
-            self.add_money(45)
+           # print("Drew community card! From Sale of Stock You Get $45")
+            self.add_money(45, globalvals)
         elif board.community_cards[index] == "Income Tax Refund":
-            print("Drew community card! Income Tax Refund")
-            self.add_money(20)
+            #print("Drew community card! Income Tax Refund")
+            self.add_money(20, globalvals)
         elif board.community_cards[index] == "Receive for Services $25":
-            print("Drew community card! Receive for Services $25")
-            self.add_money(25)
+           # print("Drew community card! Receive for Services $25")
+            self.add_money(25, globalvals)
         elif board.community_cards[index] == "You Inherit $100":
-            print("Drew community card! You Inherit $100")
-            self.add_money(100)
+           # print("Drew community card! You Inherit $100")
+            self.add_money(100, globalvals)
         elif board.community_cards[index] == "Get Out of Jail Free":
-            print("Drew community card! Get Out of Jail Free")
+            #print("Drew community card! Get Out of Jail Free")
             self.cards.append("Get Out of Jail Free")
         elif board.community_cards[index] == "Xmas Fund Matures":
-            print("Drew community card! Xmas Fund Matures")
-            self.add_money(100)
+           # print("Drew community card! Xmas Fund Matures")
+            self.add_money(100, globalvals)
         elif board.community_cards[index] == "Go to Jail":
-            print("Drew community card! Go to Jail")
+           # print("Drew community card! Go to Jail")
             self.go_to_jail()
         elif board.community_cards[index] == "Grand Opera Opening":
-            print("Drew community card! Grand Opera Opening")
+            #print("Drew community card! Grand Opera Opening")
             total = 50 * 4
-            self.add_money(total)
+            self.add_money(total, globalvals)
             for player in players:
-                player.spend_money(50)
+                player.spend_money(50, globalvals)
         elif board.community_cards[index] == "Doctor's Fee":
-            print("Drew community card! Doctor's Fee")
-            self.spend_money(50)
+            #print("Drew community card! Doctor's Fee")
+            self.spend_money(50, globalvals)
         elif board.community_cards[index] == "Pay Hospital":
-            print("Drew community card! Pay Hospital $100")
-            self.spend_money(100)
+           # print("Drew community card! Pay Hospital $100")
+            self.spend_money(100, globalvals)
         elif board.community_cards[index] == "Pay School Tax of $150":
-            print("Drew community card! Pay School Tax of $150")
-            self.spend_money(150)
+           # print("Drew community card! Pay School Tax of $150")
+            self.spend_money(150, globalvals)
         elif board.community_cards[index] == "You are Assessed for Street Repairs":
             count = 0
             for positions in positions:
                 if positions.cur_owner == self.name:
                     count = count + positions.total_houses
             total_pay = count * 50
-            self.spend_money(total_pay)
+            self.spend_money(total_pay, globalvals)
         else:
             print("e")

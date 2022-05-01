@@ -4,14 +4,14 @@ import playstyle as playstyle
 
 board = board.cards_and_positions()
 
-
-globalvals = [32, 12]
+numwins = [0, 0, 0, 0]
+globalvals = [32, 12, 20580, False]
 
 # Amount of times winner had the most of a color
 color_data = [0, 0, 0, 0, 0, 0, 0]
 color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown"]   # For printing
 
-sim_to_run = 10  # Amount of simulations to run
+sim_to_run = 1000  # Amount of simulations to run
 
 #P = player.Player("Name", spendingAI)
 # spendingAI < 0.5 passive
@@ -19,9 +19,9 @@ sim_to_run = 10  # Amount of simulations to run
 # spendingAI = 0.5 neutral
 
 P1 = player.Player("Comp1", 1)
-P2 = player.Player("Comp2", 0.5)
-P3 = player.Player("Comp3", 0.3)
-P4 = player.Player("Comp4", 0.7)
+P2 = player.Player("Comp2", 1)
+P3 = player.Player("Comp3", 1)
+P4 = player.Player("Comp4", 1)
 players = {P1, P2, P3, P4}
 
 
@@ -40,7 +40,7 @@ def reset_game(players):
         card.cur_owner = "Bank"
         card.total_houses = 0
     global globalvals
-    globalvals = [32, 12]
+    globalvals = [32, 12, 20580, False]
 
 
 def game_over(players):
@@ -104,26 +104,37 @@ def luck_data(players):
         print("Amount of community chest cards drawn for ", player.name, ":", player.community_times)
 
 
+
 def winner_data(players):
     for player in players:
         if not player.bankrupt:
             # Add more data
+            if (player.name == P1.name):
+                numwins[0] += 1
+            if (player.name == P2.name):
+                numwins[1] += 1
+            if (player.name == P3.name):
+                numwins[2] += 1
+            if (player.name == P4.name):
+                numwins[3] += 1
+                
             player_data = "Player name:", player.name, "AI Spending level:", player.spendingAI
-            print(player_data, "Properties held:", "\n")
-            for props in player.property:
-                print(props.name, "(", props.type, ")")
+           # print(player_data, "Properties held:", "\n")
+            #for props in player.property:
+               # print(props.name, "(", props.type, ")")
                 
             break
 
 
 def main():
+    print(globalvals)
     for i in range(sim_to_run):
         turn_count = 0
         while not game_over(players):   # Infinite loop as of now
 
             #go through player array calling move/position_action
             for person in players:
-                person.move(person.position, board)
+                person.move(person.position, board, globalvals)
                 person.position_action(board, players, globalvals)
                 if not person.bankrupt:
                     turn_count += 1
@@ -132,8 +143,8 @@ def main():
                     print("---------------------------------------------GAME OVER!!!! SIMULATION ", (i+1), " IS OVER----------------------------------------------------------------")
                     winner_data(players)
                     get_color_data(players)
-                    luck_data(players)
-                    print("Amount of turns in this simulation: ", turn_count)
+                    #luck_data(players)
+                    #print("Amount of turns in this simulation: ", turn_count)
                     break
         #get_color_data(players)
         #winner_data(players)
@@ -143,8 +154,17 @@ def main():
     print("Color most frequently collected: ")
     for i in list_of_max:
         print(color_names[i])
-    print(color_data)
 
+    for i in range(len(color_data)):
+        print("|",color_names[i],":", color_data[i],"|", end = ' ')
+  
+
+    print("\n","Number of Wins for Each Player: ")
+    print(P1.name,"(",P1.spendingAI,")", "Wins: ", numwins[0])
+    print(P2.name,"(",P2.spendingAI,")", "Wins: ", numwins[1])
+    print(P3.name,"(",P3.spendingAI,")", "Wins: ", numwins[2])
+    print(P4.name,"(",P4.spendingAI,")", "Wins: ", numwins[3])
+  
 
 if __name__ == "__main__":
     main()
