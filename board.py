@@ -130,12 +130,12 @@ def cards_and_positions():
         # [Rent $18] [Rent with 1 house - $90] [Rent with 2 houses - $250]
         # [Rent with 3 houses - $700] [Rent with 4 house - $875][Rent with hotel - $1050)]
 
-        in_ave = info.Board("Connecticut Avenue", "Red", 220, 150, 0, {0:18, 1:90, 2:250, 3:700, 4:875, 5:1050}, 110, "Bank", False)
+        in_ave = info.Board("Indiana Avenue", "Red", 220, 150, 0, {0:18, 1:90, 2:250, 3:700, 4:875, 5:1050}, 110, "Bank", False)
         # Indiana Avenue position ($220) [Mortgage value - $110]
         # [Rent $18] [Rent with 1 house - $90] [Rent with 2 houses - $250]
         # [Rent with 3 houses - $700] [Rent with 4 house - $875][Rent with hotel - $1050)]
 
-        il_ave = info.Board("Connecticut Avenue", "Red", 240, 150, 0, {0:20, 1:100, 2:300, 3:750, 4:925, 5:1100}, 120, "Bank", False)
+        il_ave = info.Board("Illinois Avenue", "Red", 240, 150, 0, {0:20, 1:100, 2:300, 3:750, 4:925, 5:1100}, 120, "Bank", False)
         # Illinois Avenue position ($240) [Mortgage value - $120]
         # [Rent $20] [Rent with 1 house - $100] [Rent with 2 houses - $300]
         # [Rent with 3 houses - $750] [Rent with 4 house - $925][Rent with hotel - $1100)]
