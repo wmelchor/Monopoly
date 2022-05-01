@@ -53,6 +53,9 @@ class Player:
         return spent
 
     def add_money(self, amount):
+        # 20580
+        # if bank - amount == 0:
+        #    return 
         self.money = self.money + amount
         return self.money
 
@@ -138,7 +141,7 @@ class Player:
             if property.rent_prices[i] == NULL:
                 return
             amount_owed = property.rent_prices[i]
-        if not self.spend_money(50 * amount_owed):
+        if not self.spend_money(amount_owed):
             return
       
         for player in players:
@@ -159,6 +162,7 @@ class Player:
         cardsofcolor = []
         ownedByMe = 0
         ownedByOther = 0 
+        ownedByBank = 0 
         
         for x in board:
             if (x.type == board[self.position].type):
@@ -167,25 +171,108 @@ class Player:
                     ownedByMe +=1
                 elif(x.cur_owner != "Bank"):
                     ownedByOther += 1
-        return random.random() > ((4 * (self.spendingAI - 0.5) / 10)) + (ownedByMe/(len(cardsofcolor) - ownedByOther))
+                else:
+                    ownedByBank +=1
+
+        #(self.spendingAI - 0.5) / 10)) +
+        probability = ( ((self.spendingAI - 0.5) / 10)) + (ownedByMe - ownedByOther)/(len(cardsofcolor))
+        print(probability , "<--------- buy probability")    
+        return random.random() < probability
 
     def buy_position(self, position, board):
         # Buy position and adjust player values
         self.spend_money(board[position].price)
-        self.property.append(board[position].name)
+        self.property.append(board[position])
+        for props in self.property:
+                print(self.name, "property list: ", props.name, props.type)
         # print(self.property , "property array")
         # sleep(5)
         board[position].cur_owner = self.name
 
-    def position_action(self, board, players):
+    def buy_houses(self, board, color, globalvals):
+        passive = 800
+        aggressive = 400
+        #globalhouses = globals[0]
+        #globalhotels = globals[1]
+    
+        for card in self.property:
+            if card.type == color and card.total_houses < 5:
+                if self.spend_money(card.house_price):
+                    if card.total_houses == 4 and globalvals[1] > 0:
+                        globalvals[1] -= 1
+                        globalvals[0] += 4
+                        card.total_houses += 1
+                        print("--------------------------------------------------------")
+
+                        print(self.name , "Bought a hotel on", card.name)
+                        print("--------------------------------------------------------")
+                    elif(globalvals[0] > 0):
+                        card.total_houses += 1
+                        globalvals[0] -= 1
+                        print("--------------------------------------------------------")
+                        print(self.name , "Bought a house on", card.name)
+                        print("--------------------------------------------------------")
+    def check_colors(self, globalvals):
+        DarkBlue = 2
+        Green = 3
+        Yellow = 3
+        Red = 3
+        Orange = 3
+        Pink = 3
+        LightBlue = 3
+        Brown = 2
+
+        cardDarkBlue = 0
+        cardGreen = 0
+        cardYellow = 0
+        cardRed = 0
+        cardOrange = 0
+        cardPink = 0
+        cardLightBlue = 0
+        cardBrown = 0
+
+        for card in self.property:
+            if card.type == "Dark Blue":
+                cardDarkBlue += 1
+            elif card.type == "Green":
+                cardGreen += 1
+            elif card.type == "Yellow":
+                cardYellow += 1
+            elif card.type == "Red":
+                cardRed += 1
+            elif card.type == "Orange":
+                cardOrange += 1
+            elif card.type == "Pink":
+                cardPink += 1
+            elif card.type == "Light Blue":
+                cardLightBlue += 1
+            elif card.type == "Brown":
+                cardBrown += 1
+        if cardDarkBlue == DarkBlue:
+            self.buy_houses(board, "Dark Blue", globalvals)
+        elif cardGreen == Green:
+            self.buy_houses(board, "Green", globalvals)
+        elif cardYellow == Yellow:
+            self.buy_houses(board, "Yellow", globalvals)
+        elif cardRed == Red:
+            self.buy_houses(board, "Red", globalvals)
+        elif cardOrange == Orange:
+            self.buy_houses(board, "Orange", globalvals)
+        elif cardPink == Pink:
+            self.buy_houses(board, "Pink", globalvals)
+        elif cardLightBlue == LightBlue:
+            self.buy_houses(board, "Light Blue", globalvals)
+        elif cardBrown == Brown:
+            self.buy_houses(board, "Brown", globalvals)
+    
+
+    def position_action(self, board, players, globalvals):
         # Based on the position the player has landed on, take certain actions
         if self.bankrupt:
             return
 
         position = self.position
-
-        
-        #test bankrupt
+        self.check_colors(globalvals)
 
         if self.money <= 0:
             self.bankrupt_action()
@@ -251,6 +338,7 @@ class Player:
             print("Drew chance card! Advance to the nearest Railroad")
             if self.position < 5:
                 self.position = 5
+                
             elif 15 > self.position > 5:
                 self.position = 15
             elif 25 > self.position > 15:
@@ -259,6 +347,13 @@ class Player:
                 self.position = 35
             else:
                 self.position = 5
+           
+            if positions[self.position].cur_owner != "Bank" and positions[self.position].cur_owner != self.name:
+                self.rent(positions[self.position], positions, players)
+            elif positions[self.position].cur_owner == "Bank":
+               if self.defaultDecision(positions):
+                    self.buy_position(self.position, positions)    
+
         elif board.chance_cards[index] == "Make general repairs on all your property":
             print("Drew chance card! Make general repairs on all your property")
             count = 0
