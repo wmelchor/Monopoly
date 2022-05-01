@@ -5,7 +5,7 @@ class Board:
         self.type = type  # the color of the position
         self.price = price  # the price to buy the position
         self.house_price = house_price  # the price to buy a house at the position
-        self.total_houses = total_houses  # the total number of houses/hotels currently at this position
+        self.total_houses = 0  # the total number of houses/hotels currently at this position
         self.rent_prices = rent_prices  # the price of rent depending on total houses at the position
         self.mortgage_price = mortgage_price  # the mortgage price
         self.cur_owner = cur_owner  # the player who currently owns the position on the board
@@ -51,14 +51,10 @@ def cards_and_positions():
         # Reading Railroad ($200) [Mortgage value - $100]
         # [Rent $25] [Rent with 2 R.R.'s - $50] [Rent with 3 R.R.'s - $100] [Rent with 4 R.R.'s - $200]
 
-        orient_ave = info.Board("Baltic Avenue", "Light Blue", 100, 50, 0, {0:6, 1:30, 2:90, 3:270, 4:400, 5:550}, 50, "Bank", False)
+        orient_ave = info.Board("Oriental Avenue", "Light Blue", 100, 50, 0, {0:6, 1:30, 2:90, 3:270, 4:400, 5:550}, 50, "Bank", False)
         # Oriental Avenue position ($100) [Mortgage value - $50] [Hotels and houses - $50 each]
         # [Rent $6] [Rent with 1 house - $30] [Rent with 2 houses - $90]
         # [Rent with 3 houses - $270] [Rent with 4 house - $400][Rent with hotel - $550)]
-
-        chance = info.Board("Chance", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "Bank", False)
-        # Chance - follow instructions of card
-        # Cards can be:
 
         vt_ave = info.Board("Vermont Avenue", "Light Blue", 100, 50, 0, {0:6, 1:30, 2:90, 3:270, 4:400, 5:550}, 50, "Bank", False)
         # Vermont Avenue position ($100) [Mortgage value - $50]
@@ -170,6 +166,24 @@ def cards_and_positions():
         short_line_rr = info.Board("Short Line Railroad", "Railroad", 200, "NULL", "NULL", "NULL", 100, "Bank", False)
         # Short Line Railroad position ($200) [Mortgage value - $100]
         # [Rent $25] [Rent with 2 R.R.'s - $50] [Rent with 3 R.R.'s - $100] [Rent with 4 R.R.'s - $200]
+
+        chance = info.Board("Chance", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "Bank", False)
+        # Advance to Boardwalk
+        # Advance to Go (Collect $200)
+        # Advance to Illinois Avenue. If you pass Go, collect $200
+        # Advance to St. Charles Place. If you pass Go, collect $200
+        # Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled
+        # Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled
+        # Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times amount thrown.
+        # Bank pays you dividend of $50
+        # Get Out of Jail Free
+        # Go Back 3 Spaces
+        # Go to Jail. Go directly to Jail, do not pass Go, do not collect $200
+        # Make general repairs on all your property. For each house pay $25. For each hotel pay $100
+        # Speeding fine $15
+        # Take a trip to Reading Railroad. If you pass Go, collect $200
+        # You have been elected Chairman of the Board. Pay each player $50
+        # Your building loan matures. Collect $150
 
         park_place = info.Board("Park Place", "Dark Blue", 350, 200, 0, {0:35, 1:175, 2:500, 3:1100, 4:1300, 5:1500}, 175, "Bank", False)
         # Park Place position ($350) [Mortgage value - $175]

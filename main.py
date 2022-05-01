@@ -10,9 +10,11 @@ sim_to_run = 1  # Amount of simulations to run
 # spendingAI > 0.5 aggressive
 # spendingAI = 0.5 neutral
 
-P1 = player.Player("Comp1", 0.5)
-P2 = player.Player("Comp2", 1.0)
-players = {P1, P2}
+P1 = player.Player("Comp1", 1.0)
+P2 = player.Player("Comp2", 0.1)
+P3 = player.Player("Comp3", 0.1)
+P4 = player.Player("Comp4", 0.1)
+players = {P1, P2, P3, P4}
 
 
 def game_over(players):
@@ -31,7 +33,7 @@ def winner_data(players):
     for player in players:
         if not player.bankrupt:
             # Add more data
-            player_data = "Player name:", player.name, "\nAI Spending level:", player.spendingAI
+            player_data = "Player name:", player.name, "AI Spending level:", player.spendingAI
             data = player_data, "Properties held:", player.property
             return data
 
@@ -43,7 +45,11 @@ def main():
             #go through player array calling move/position_action
             for person in players:
                 person.move(person.position, board)
-                person.position_action(board)
+                person.position_action(board, players)
+                if game_over(players):
+                    break
+
+        print(winner_data(players))    
 
     
 
