@@ -14,6 +14,8 @@ class Player:
         self.jail = False   # Jailed status
         self.property = []  # Property owned
         self.cards = []     # Cards the player currently has
+        self.chance_times = 0   # Times player drew a chance
+        self.community_times = 0  # Times player drew a comm card
         self.railroads = 0     # Railroads owned
         self.bankrupt = False   # Bankruptcy status
         self.spendingAI = spendingAI    # This can determine how they spend their money [ranging from 0.0 to 1.0]
@@ -120,7 +122,9 @@ class Player:
         # Game over for the player, take them out of the game
         # Take back all cards owned by that player and give it to the bank
         print(self.name + " went bankrupt!!!!!!!!!!!!!")
+        data = self.name + " went bankrupt"
         self.bankrupt = True
+        return data
 
     def rent(self, property, board, players):
         # Do not call this function if the current owner is the bank
@@ -301,12 +305,14 @@ class Player:
             i = 0
             random.shuffle(globals()["board"].chance_cards)
             self.chance_action(i, board, players)
+            self.chance_times += 1
         elif board[position].name == "Community Chest":
             # incomplete
             #print("Community Chest")
             i = 0
             random.shuffle(globals()["board"].community_cards)
             self.community_action(i, board, players)
+            self.community_times += 1
         elif board[position].name == "Jail":
             if self.jail:
                 print("Still in Jail")
