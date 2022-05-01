@@ -34,11 +34,11 @@ class Player:
             roll = a + b
             self.position += roll
             self.position = self.position % 40
-            print(self.name, "(" ,self.money , ")", "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
+            #print(self.name, "(" ,self.money , ")", "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
             # if passed go collect 200
             if previous > self.position:
                 self.add_money(200)
-                print("Passed Go Collect $200!")
+                #print("Passed Go Collect $200!")
             return roll
 
     def spend_money(self, amount):
@@ -87,29 +87,31 @@ class Player:
                     b = random.randint(1, 6)
                     roll = a + b
                     self.position += roll
-                    print(self.name, "rolled ", roll, " to ", self.position, "\n")
+                    #print(self.name, "rolled ", roll, " to ", self.position, "\n")
             else:
                 a = random.randint(1, 6)
                 b = random.randint(1, 6)
                 if a == b:
-                    print("Rolled doubles! Get out of jail!")
+                    #print("Rolled doubles! Get out of jail!")
                     self.jail = False
                     roll = a + b
                     self.position += roll
-                    print(self.name, "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
+                    #print(self.name, "rolled ", roll, " moving from ", board[previous].name, " to ", board[self.position].name)
                 else:
-                    print("Failed to roll doubles, too bad!")
+                    #print("Failed to roll doubles, too bad!")
+                    pass
         else:
             a = random.randint(1, 6)
             b = random.randint(1, 6)
             if a == b:
-                print("Rolled doubles! Get out of jail!")
+                #print("Rolled doubles! Get out of jail!")
                 self.jail = False
                 roll = a + b
                 self.position += roll
-                print(self.name, "rolled ", roll, " to ", self.position, "\n")
+                #print(self.name, "rolled ", roll, " to ", self.position, "\n")
             else:
-                print("Failed to roll doubles, too bad!")
+                #print("Failed to roll doubles, too bad!")
+                pass
         return
 
     def bankrupt_action(self):
@@ -176,15 +178,15 @@ class Player:
 
         #(self.spendingAI - 0.5) / 10)) +
         probability = ( ((self.spendingAI - 0.5) / 10)) + (ownedByMe - ownedByOther)/(len(cardsofcolor))
-        print(probability , "<--------- buy probability")    
+        #print(probability , "<--------- buy probability")
         return random.random() < probability
 
     def buy_position(self, position, board):
         # Buy position and adjust player values
         self.spend_money(board[position].price)
         self.property.append(board[position])
-        for props in self.property:
-                print(self.name, "property list: ", props.name, props.type)
+        #for props in self.property:
+                #print(self.name, "property list: ", props.name, props.type)
         # print(self.property , "property array")
         # sleep(5)
         board[position].cur_owner = self.name
@@ -202,16 +204,17 @@ class Player:
                         globalvals[1] -= 1
                         globalvals[0] += 4
                         card.total_houses += 1
-                        print("--------------------------------------------------------")
+                        #print("--------------------------------------------------------")
 
-                        print(self.name , "Bought a hotel on", card.name)
-                        print("--------------------------------------------------------")
+                        #print(self.name , "Bought a hotel on", card.name)
+                        #print("--------------------------------------------------------")
                     elif(globalvals[0] > 0):
                         card.total_houses += 1
                         globalvals[0] -= 1
-                        print("--------------------------------------------------------")
-                        print(self.name , "Bought a house on", card.name)
-                        print("--------------------------------------------------------")
+                        #print("--------------------------------------------------------")
+                        #print(self.name , "Bought a house on", card.name)
+                        #print("--------------------------------------------------------")
+
     def check_colors(self, globalvals):
         DarkBlue = 2
         Green = 3
@@ -264,7 +267,6 @@ class Player:
             self.buy_houses(board, "Light Blue", globalvals)
         elif cardBrown == Brown:
             self.buy_houses(board, "Brown", globalvals)
-    
 
     def position_action(self, board, players, globalvals):
         # Based on the position the player has landed on, take certain actions
@@ -279,27 +281,29 @@ class Player:
 
         #    
         elif board[position].name == "Go":
-            print("Back at Go")
+            #print("Back at Go")
+            pass
         elif board[position].name == "Free Parking":
-            print("Free Parking")
+            #print("Free Parking")
+            pass
         elif board[position].name == "Go to Jail":
             self.go_to_jail()
         elif board[position].name == "Income Tax":
             # Add option to spend 10% of net worth if we want
             self.spend_money(200)
-            print("Taxed $200!")
+            #print("Taxed $200!")
         elif board[position].name == "Luxury Tax":
             self.spend_money(75)
-            print("Taxed $75!")
+            #print("Taxed $75!")
         elif board[position].name == "Chance":
             # incomplete
-            print("Chance??")
+            #print("Chance??")
             i = 0
             random.shuffle(globals()["board"].chance_cards)
             self.chance_action(i, board, players)
         elif board[position].name == "Community Chest":
             # incomplete
-            print("Community Chest")
+            #print("Community Chest")
             i = 0
             random.shuffle(globals()["board"].community_cards)
             self.community_action(i, board, players)
