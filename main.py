@@ -4,14 +4,15 @@ import playstyle as playstyle
 
 board = board.cards_and_positions()
 
+
 globalvals = [32, 12]
 
 # Amount of times winner had the most of a color
-
 color_data = [0, 0, 0, 0, 0, 0, 0]
 color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown"]   # For printing
 
-sim_to_run = 50  # Amount of simulations to run
+sim_to_run = 10  # Amount of simulations to run
+
 #P = player.Player("Name", spendingAI)
 # spendingAI < 0.5 passive
 # spendingAI > 0.5 aggressive
@@ -33,6 +34,8 @@ def reset_game(players):
         player.cards = []
         player.railroads = 0
         player.bankrupt = False
+        player.chance_times = 0
+        player.community_times = 0
     for card in board:
         card.cur_owner = "Bank"
         card.total_houses = 0
@@ -95,6 +98,11 @@ def get_color_data(players):
         color_data[6] += 1
 
 
+def luck_data(players):
+    for player in players:
+        print("Amount of chance cards drawn for ", player.name, ":", player.chance_times)
+        print("Amount of community chest cards drawn for ", player.name, ":", player.community_times)
+
 
 def winner_data(players):
     for player in players:
@@ -110,17 +118,22 @@ def winner_data(players):
 
 def main():
     for i in range(sim_to_run):
+        turn_count = 0
         while not game_over(players):   # Infinite loop as of now
 
             #go through player array calling move/position_action
             for person in players:
                 person.move(person.position, board)
                 person.position_action(board, players, globalvals)
+                if not person.bankrupt:
+                    turn_count += 1
                 #print("global houses:", globalvals[0], "global hotels:", globalvals[1])
                 if game_over(players):
                     print("---------------------------------------------GAME OVER!!!! SIMULATION ", (i+1), " IS OVER----------------------------------------------------------------")
                     winner_data(players)
                     get_color_data(players)
+                    luck_data(players)
+                    print("Amount of turns in this simulation: ", turn_count)
                     break
         #get_color_data(players)
         #winner_data(players)
