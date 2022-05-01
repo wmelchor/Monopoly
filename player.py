@@ -211,8 +211,11 @@ class Player:
             random.shuffle(globals()["board"].chance_cards)
             self.chance_action(i, board, players)
         elif board[position].name == "Community Chest":
-             # incomplete
+            # incomplete
             print("Community Chest")
+            i = 0
+            random.shuffle(globals()["board"].community_cards)
+            self.community_action(i, board, players)
         elif board[position].name == "Jail":
             if self.jail:
                 print("Still in Jail")
@@ -306,5 +309,65 @@ class Player:
         elif board.chance_cards[index] == "Your building loan matures. Collect $150":
             print("Drew chance card! Your building loan matures. Collect $150")
             self.add_money(150)
+        else:
+            print("e")
+
+    def community_action(self, index, positions, players):     # index for card deck, board, players
+        if board.community_cards[index] == "Life Insurance Matures":
+            print("Drew community card! Life Insurance Matures")
+            self.add_money(100)
+        elif board.community_cards[index] == "Advance to Go (Collect $200)":
+            print("Drew community card! Advance to Go (Collect $200)")
+            self.position = 0
+            self.add_money(200)
+        elif board.community_cards[index] == "You have won second prize in a beauty contest":
+            print("Drew community card! You have won second prize in a beauty contest")
+            self.add_money(10)
+        elif board.community_cards[index] == "Bank Error In Your Favor":
+            print("Drew community card! Bank Error In Your Favor")
+            self.add_money(200)
+        elif board.community_cards[index] == "From Sale of Stock You Get $45":
+            print("Drew community card! From Sale of Stock You Get $45")
+            self.add_money(45)
+        elif board.community_cards[index] == "Income Tax Refund":
+            print("Drew community card! Income Tax Refund")
+            self.add_money(20)
+        elif board.community_cards[index] == "Receive for Services $25":
+            print("Drew community card! Receive for Services $25")
+            self.add_money(25)
+        elif board.community_cards[index] == "You Inherit $100":
+            print("Drew community card! You Inherit $100")
+            self.add_money(100)
+        elif board.community_cards[index] == "Get Out of Jail Free":
+            print("Drew community card! Get Out of Jail Free")
+            self.cards.append("Get Out of Jail Free")
+        elif board.community_cards[index] == "Xmas Fund Matures":
+            print("Drew community card! Xmas Fund Matures")
+            self.add_money(100)
+        elif board.community_cards[index] == "Go to Jail":
+            print("Drew community card! Go to Jail")
+            self.go_to_jail()
+        elif board.community_cards[index] == "Grand Opera Opening":
+            print("Drew community card! Grand Opera Opening")
+            total = 50 * 4
+            self.add_money(total)
+            for player in players:
+                player.spend_money(50)
+        elif board.community_cards[index] == "Doctor's Fee":
+            print("Drew community card! Doctor's Fee")
+            self.spend_money(50)
+        elif board.community_cards[index] == "Pay Hospital":
+            print("Drew community card! Pay Hospital $100")
+            self.spend_money(100)
+        elif board.community_cards[index] == "Pay School Tax of $150":
+            print("Drew community card! Pay School Tax of $150")
+            self.spend_money(150)
+        elif board.community_cards[index] == "You are Assessed for Street Repairs":
+            count = 0
+            for positions in positions:
+                if positions.cur_owner == self.name:
+                    count = count + positions.total_houses
+            total_pay = count * 50
+            self.spend_money(total_pay)
         else:
             print("e")
