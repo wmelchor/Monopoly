@@ -11,8 +11,8 @@ numwins = [0, 0, 0, 0]
 globalvals = [32, 12, 20580, False]
 
 # Amount of times winner had the most of a color
-color_data = [0, 0, 0, 0, 0, 0, 0]
-color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown"]   # For printing
+color_data = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown", "Railroads", "Utility"]   # For printing
 
 sim_to_run = 1000  # Amount of simulations to run
 
@@ -66,6 +66,8 @@ def get_color_data(players):
     cardPink = 0
     cardLightBlue = 0
     cardBrown = 0
+    cardRoad = 0
+    cardUtility = 0
     for player in players:
         if not player.bankrupt:
             for card in player.property:
@@ -85,6 +87,10 @@ def get_color_data(players):
                     cardLightBlue += 1
                 elif card.type == "Brown":
                     cardBrown += 1
+                elif card.type == "Railroad":
+                    cardRoad += 1
+                elif card.type == "Utility":
+                    cardUtility += 1
     if cardDarkBlue == 2:
         color_data[0] += 1
     if cardYellow == 3:
@@ -99,6 +105,10 @@ def get_color_data(players):
         color_data[5] += 1
     if cardBrown == 2:
         color_data[6] += 1
+    if cardRoad == 4:
+        color_data[7] += 1
+    if cardUtility == 2:
+        color_data[8] += 1
 
 
 def luck_data(players):
@@ -174,11 +184,6 @@ def main():
 
     fig = plt.figure()
     ax = fig.add_axes([.1, .1, .9, .8])
-    p1string = P1.name,"(",str(P1.spendingAI),")" 
-    P2string = P2.name,"(",str(P2.spendingAI),")" 
-    p3string = P3.name,"(",str(P3.spendingAI),")" 
-    p4string = P4.name,"(",str(P4.spendingAI),")" 
-    #x = [p1string, P2string, p3string, p4string]
     x = [P1.name, P2.name, P3.name, P4.name]
     ax.bar(x, numwins)
     plt.xlabel('Players')
