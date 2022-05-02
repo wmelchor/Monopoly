@@ -1,6 +1,9 @@
 import board as board
 import player as player
 import playstyle as playstyle
+import matplotlib.pyplot as plt
+
+
 
 board = board.cards_and_positions()
 
@@ -128,6 +131,7 @@ def winner_data(players):
 
 def main():
     print(globalvals)
+    total_turncount = 0
     for i in range(sim_to_run):
         turn_count = 0
         while not game_over(players):   # Infinite loop as of now
@@ -145,6 +149,7 @@ def main():
                     get_color_data(players)
                     #luck_data(players)
                     #print("Amount of turns in this simulation: ", turn_count)
+                    total_turncount += turn_count
                     break
         #get_color_data(players)
         #winner_data(players)
@@ -157,6 +162,8 @@ def main():
 
     for i in range(len(color_data)):
         print("|",color_names[i],":", color_data[i],"|", end = ' ')
+
+    print("\n","Average Number of Turns: ", total_turncount/sim_to_run)
   
 
     print("\n","Number of Wins for Each Player: ")
@@ -164,6 +171,20 @@ def main():
     print(P2.name,"(",P2.spendingAI,")", "Wins: ", numwins[1])
     print(P3.name,"(",P3.spendingAI,")", "Wins: ", numwins[2])
     print(P4.name,"(",P4.spendingAI,")", "Wins: ", numwins[3])
+
+    fig = plt.figure()
+    ax = fig.add_axes([.1, .1, .9, .8])
+    p1string = P1.name,"(",str(P1.spendingAI),")" 
+    P2string = P2.name,"(",str(P2.spendingAI),")" 
+    p3string = P3.name,"(",str(P3.spendingAI),")" 
+    p4string = P4.name,"(",str(P4.spendingAI),")" 
+    #x = [p1string, P2string, p3string, p4string]
+    x = [P1.name, P2.name, P3.name, P4.name]
+    ax.bar(x, numwins)
+    plt.xlabel('Players')
+    plt.ylabel('Number of Wins')
+    plt.title('# of Wins by Player')
+    plt.show()
   
 
 if __name__ == "__main__":
