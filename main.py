@@ -2,30 +2,39 @@ import board as board
 import player as player
 import playstyle as playstyle
 import matplotlib.pyplot as plt
-
+import random
+import numpy
 
 
 board = board.cards_and_positions()
 
 numwins = [0, 0, 0, 0]
-globalvals = [32, 12, 20580, False]
+globalvals = [32, 12, 20580, False, 4]
+winarr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+placearr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+AIgames = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+avgarr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
 
 # Amount of times winner had the most of a color
-color_data = [0, 0, 0, 0, 0, 0, 0]
-color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown"]   # For printing
+color_data = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+color_names = ["Dark Blue", "Yellow", "Red", "Orange", "Pink", "Light Blue", "Brown", "Railroads", "Utility"]   # For printing
 
-sim_to_run = 1000  # Amount of simulations to run
+sim_to_run = 10000  # Amount of simulations to run
 
+w, h = 10, sim_to_run
+variancearr = [[0 for x in range(w)] for y in range(h)] 
+totalvararr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #P = player.Player("Name", spendingAI)
 # spendingAI < 0.5 passive
 # spendingAI > 0.5 aggressive
 # spendingAI = 0.5 neutral
 
-P1 = player.Player("Comp1", 1)
-P2 = player.Player("Comp2", 1)
-P3 = player.Player("Comp3", 1)
-P4 = player.Player("Comp4", 1)
-players = {P1, P2, P3, P4}
+#P1 = player.Player("Comp1", 1)
+#P2 = player.Player("Comp2", .1)
+#P3 = player.Player("Comp3", 1)
+#P4 = player.Player("Comp4", 1)
+#players = {P1, P2, P3, P4}
 
 
 def reset_game(players):
@@ -39,11 +48,12 @@ def reset_game(players):
         player.bankrupt = False
         player.chance_times = 0
         player.community_times = 0
+        player.placement = 1
     for card in board:
         card.cur_owner = "Bank"
         card.total_houses = 0
     global globalvals
-    globalvals = [32, 12, 20580, False]
+    globalvals = [32, 12, 20580, False, 4]
 
 
 def game_over(players):
@@ -66,6 +76,8 @@ def get_color_data(players):
     cardPink = 0
     cardLightBlue = 0
     cardBrown = 0
+    cardRoad = 0
+    cardUtility = 0
     for player in players:
         if not player.bankrupt:
             for card in player.property:
@@ -85,6 +97,10 @@ def get_color_data(players):
                     cardLightBlue += 1
                 elif card.type == "Brown":
                     cardBrown += 1
+                elif card.type == "Railroad":
+                    cardRoad += 1
+                elif card.type == "Utility":
+                    cardUtility += 1
     if cardDarkBlue == 2:
         color_data[0] += 1
     if cardYellow == 3:
@@ -99,6 +115,10 @@ def get_color_data(players):
         color_data[5] += 1
     if cardBrown == 2:
         color_data[6] += 1
+    if cardRoad == 4:
+        color_data[7] += 1
+    if cardUtility == 2:
+        color_data[8] += 1
 
 
 def luck_data(players):
@@ -110,16 +130,33 @@ def luck_data(players):
 
 def winner_data(players):
     for player in players:
+        #print(list(players)[0].spendingAI * 10 - 1)
+        #print(list(players)[1].spendingAI * 10 - 1)
+        #print(list(players)[2].spendingAI * 10 - 1)
+        #print(list(players)[3].spendingAI * 10 - 1)
+
         if not player.bankrupt:
             # Add more data
-            if (player.name == P1.name):
+            if (player.name == list(players)[0].name):
                 numwins[0] += 1
-            if (player.name == P2.name):
+                #print(list(players)[0].spendingAI * 10 - 1)
+                winarr[int(list(players)[0].spendingAI * 10 - 1)] += 1
+                
+            if (player.name == list(players)[1].name):
                 numwins[1] += 1
-            if (player.name == P3.name):
+                #print(list(players)[1].spendingAI * 10 - 1)
+                winarr[int(list(players)[1].spendingAI * 10 - 1)] += 1
+                
+            if (player.name == list(players)[2].name):
                 numwins[2] += 1
-            if (player.name == P4.name):
+                #print(list(players)[2].spendingAI * 10 - 1)
+                winarr[int(list(players)[2].spendingAI * 10 - 1)] += 1
+               
+            if (player.name == list(players)[3].name):
                 numwins[3] += 1
+                #print(list(players)[3].spendingAI * 10 - 1)
+                winarr[int(list(players)[3].spendingAI * 10 - 1)] += 1
+                
                 
             player_data = "Player name:", player.name, "AI Spending level:", player.spendingAI
            # print(player_data, "Properties held:", "\n")
@@ -128,12 +165,48 @@ def winner_data(players):
                 
             break
 
+def placement_data(players, i):
+    for person in players:
+        variancearr[i][int (person.spendingAI * 10 - 1)] += person.placement
+        AIgames[int (person.spendingAI * 10 - 1)] += 1  
+        placearr[int (person.spendingAI * 10 - 1)] += person.placement       
+        #print(person.name , person.spendingAI , " placed" , person.placement)
 
+def get_avg(arr1, arr2):
+    for x in range(len(arr1)):
+        if(arr1[x] ==0 or arr2[x] == 0):
+            avgarr[x] = 0
+        else:
+            avgarr[x] = arr1[x]/arr2[x]
+    return avgarr
+
+def get_var(avgarr, variancearr):
+    for i in range(len(avgarr)):
+        for x in range(sim_to_run):
+           totalvararr[i] += pow(variancearr[x][i] - avgarr[i], 2)
+        if(totalvararr[i] == 0 or AIgames[i] == 0):
+            totalvararr[i] = 0
+        else:  
+            totalvararr[i] /= AIgames[i]
+    return totalvararr
+
+        
 def main():
     print(globalvals)
     total_turncount = 0
     for i in range(sim_to_run):
         turn_count = 0
+        # ************comment out if you don't want random, and uncomment the global player variables at the top of the code
+        P1 = player.Player("Comp1", random.randint(1,10)/10)
+        P2 = player.Player("Comp2", random.randint(1,10)/10)
+        P3 = player.Player("Comp3", random.randint(1,10)/10)
+        P4 = player.Player("Comp4", random.randint(1,10)/10)
+        #print(P1.spendingAI)
+        #print(P2.spendingAI)
+        #print(P3.spendingAI)
+        #print(P4.spendingAI)
+        players = {P1, P2, P3, P4}
+        # **************
         while not game_over(players):   # Infinite loop as of now
 
             #go through player array calling move/position_action
@@ -144,6 +217,7 @@ def main():
                     turn_count += 1
                 #print("global houses:", globalvals[0], "global hotels:", globalvals[1])
                 if game_over(players):
+                    placement_data(players, i)
                     print("---------------------------------------------GAME OVER!!!! SIMULATION ", (i+1), " IS OVER----------------------------------------------------------------")
                     winner_data(players)
                     get_color_data(players)
@@ -171,19 +245,23 @@ def main():
     print(P2.name,"(",P2.spendingAI,")", "Wins: ", numwins[1])
     print(P3.name,"(",P3.spendingAI,")", "Wins: ", numwins[2])
     print(P4.name,"(",P4.spendingAI,")", "Wins: ", numwins[3])
+    print(winarr)
+    #print(placearr)
+    #print(AIgames, "<---- games")
+    #print(variancearr)
+
+    print(get_avg(placearr, AIgames) , "<------averages")
+    print(get_var(avgarr, variancearr), "<----- variances")
 
     fig = plt.figure()
     ax = fig.add_axes([.1, .1, .9, .8])
-    p1string = P1.name,"(",str(P1.spendingAI),")" 
-    P2string = P2.name,"(",str(P2.spendingAI),")" 
-    p3string = P3.name,"(",str(P3.spendingAI),")" 
-    p4string = P4.name,"(",str(P4.spendingAI),")" 
-    #x = [p1string, P2string, p3string, p4string]
-    x = [P1.name, P2.name, P3.name, P4.name]
-    ax.bar(x, numwins)
-    plt.xlabel('Players')
+    #x = [P1.name, P2.name, P3.name, P4.name]
+    x = [".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9", "1"]
+    #ax.bar(x, numwins)
+    ax.bar(x, winarr)
+    plt.xlabel('Player AI Level')
     plt.ylabel('Number of Wins')
-    plt.title('# of Wins by Player')
+    plt.title('Number of Wins by Player AI Level with ',sim_to_run,' Runs')
     plt.show()
   
 

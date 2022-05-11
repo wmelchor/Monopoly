@@ -21,6 +21,7 @@ class Player:
         self.spendingAI = spendingAI    # This can determine how they spend their money [ranging from 0.0 to 1.0]
         self.playstyle = playstyle.Playstyle(spendingAI)
         self.ai = "something will go here"
+        self.placement = 1  # finishing placement
 
     def move(self, position, board, globalvals):
         if self.bankrupt:
@@ -137,7 +138,18 @@ class Player:
         # Like selling property back to the bank/other players
         # Game over for the player, take them out of the game
         # Take back all cards owned by that player and give it to the bank
+        
+
+        if self.bankrupt:
+            return
+
+        self.placement = globalvals[4]
+        globalvals[4] -= 1
+
+        
         #print(self.name + " went bankrupt!!!!!!!!!!!!!")
+        #print(self.name + " placed" , self.placement)
+
         self.bankrupt = True
         globalvals[2] += self.money
         for card in self.property:
