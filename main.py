@@ -255,11 +255,17 @@ def main():
 
     fig = plt.figure()
     ax = fig.add_axes([.1, .1, .9, .8])
+<<<<<<< HEAD
     #x = [P1.name, P2.name, P3.name, P4.name]
     x = [".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9", "1"]
     #ax.bar(x, numwins)
     ax.bar(x, winarr)
     plt.xlabel('Player AI Level')
+=======
+    x = [P1.name, P2.name, P3.name, P4.name]
+    ax.bar(x, numwins)
+    plt.xlabel('Players')
+>>>>>>> 4a50ee1554d9ce075abfaebfe642b79fb98fe8fa
     plt.ylabel('Number of Wins')
     plt.title('Number of Wins by Player AI Level with ',sim_to_run,' Runs')
     plt.show()
