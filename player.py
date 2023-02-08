@@ -1,10 +1,10 @@
-from asyncio.windows_events import NULL
+
 import random
 from time import sleep
 from unicodedata import name
 import board as board
 import playstyle as playstyle
-
+NULL = 0
 
 class Player:
     def __init__(self, name, spendingAI):

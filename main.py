@@ -207,7 +207,7 @@ def main():
         #print(P4.spendingAI)
         players = {P1, P2, P3, P4}
         # **************
-        while not game_over(players):   # Infinite loop as of now
+        while not game_over(players):  
 
             #go through player array calling move/position_action
             for person in players:
